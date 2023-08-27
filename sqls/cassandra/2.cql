@@ -1,0 +1,2 @@
+CREATE TABLE IF NOT EXISTS <<KEYSPACE>>.creature_statistics (name TEXT, count COUNTER, day BIGINT, world TEXT, PRIMARY KEY (name, day, world));
+UPDATE <<KEYSPACE>>.configurations SET database_version = 2;

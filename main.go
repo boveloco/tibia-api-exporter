@@ -6,9 +6,10 @@ func main() {
 	db = tmp
 
 	db.Init()
-	println("Conetado no banco...")
 	db.UpdateDatabase()
 
+	worls := getWorlds()
+	println(worls)
 	defer db.Close()
 
 }

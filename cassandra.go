@@ -6,12 +6,14 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gocql/gocql"
 )
 
 var CASSANDRA_SQL_PATH = "./sqls/cassandra"
+var CASSANDRA_KEYSPACE = os.Getenv("DB_CASSANDRA_KEYSTORE")
 
 type CassandraDB struct {
 	Instance *gocql.Session
@@ -21,6 +23,7 @@ func (c *CassandraDB) Init() {
 	// DB_CASSANDRA_USERNAME := os.Getenv("DB_CASSANDRA_USERNAME")
 	// DB_CASSANDRA_PAWSSWORD := os.Getenv("DB_CASSANDRA_PAWSSWORD")
 	DB_CASSANDRA_CLUSTERIP := os.Getenv("DB_CASSANDRA_CLUSTERIP")
+	log.Println("Connecting Database...")
 
 	// connect to the cluster
 	cluster := gocql.NewCluster(DB_CASSANDRA_CLUSTERIP)
@@ -34,6 +37,7 @@ func (c *CassandraDB) Init() {
 		return
 	}
 	c.Instance = session
+	log.Println("Database Connected..")
 }
 
 func (c *CassandraDB) Write(data *interface{}) bool {
@@ -54,7 +58,7 @@ func (c *CassandraDB) UpdateDatabase() {
 	// Return average sleep time for James
 	var databaseVersion int = 0
 
-	q := c.Instance.Query("SELECT database_version FROM tibia_api.configurations").Iter()
+	q := c.Instance.Query("SELECT database_version FROM " + CASSANDRA_KEYSPACE + ".configurations").Iter()
 	q.Scan(&databaseVersion)
 
 	if databaseVersion != 0 && databaseVersion == GetDatabaseVersion() {
@@ -90,7 +94,10 @@ func getFileQueries(file string) (queries []string) {
 	scanner := bufio.NewScanner(f)
 
 	for scanner.Scan() {
-		queries = append(queries, scanner.Text())
+		s := scanner.Text()
+		s = strings.Replace(s, "<<KEYSPACE>>", CASSANDRA_KEYSPACE, -1)
+
+		queries = append(queries, s)
 	}
 	// check for the error that occurred during the scanning
 
@@ -98,7 +105,7 @@ func getFileQueries(file string) (queries []string) {
 		log.Println(err)
 	}
 
-	// Close the file at the end of the program
+	// Close the file
 	defer f.Close()
 
 	return []string(queries)

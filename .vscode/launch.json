@@ -11,7 +11,8 @@
             "mode": "auto",
             "program": "${fileDirname}",
             "env": {
-                "DB_CASSANDRA_CLUSTERIP": "nuc.nullservers.com"
+                "DB_CASSANDRA_CLUSTERIP": "nuc.nullservers.com",
+                "DB_CASSANDRA_KEYSTORE": "teste"
             }
         }
     ]
