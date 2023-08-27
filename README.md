@@ -1,0 +1,1 @@
+This project exists in order to create a database with all the metadata that we have about tibia using tibia-api for it.
