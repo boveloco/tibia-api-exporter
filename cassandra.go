@@ -1,6 +1,8 @@
-package database
+package main
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -9,13 +11,15 @@ import (
 	"github.com/gocql/gocql"
 )
 
+var CASSANDRA_SQL_PATH = "./sqls/cassandra"
+
 type CassandraDB struct {
 	Instance *gocql.Session
 }
 
 func (c *CassandraDB) Init() {
-	DB_CASSANDRA_USERNAME := os.Getenv("DB_CASSANDRA_USERNAME")
-	DB_CASSANDRA_PAWSSWORD := os.Getenv("DB_CASSANDRA_PAWSSWORD")
+	// DB_CASSANDRA_USERNAME := os.Getenv("DB_CASSANDRA_USERNAME")
+	// DB_CASSANDRA_PAWSSWORD := os.Getenv("DB_CASSANDRA_PAWSSWORD")
 	DB_CASSANDRA_CLUSTERIP := os.Getenv("DB_CASSANDRA_CLUSTERIP")
 
 	// connect to the cluster
@@ -23,7 +27,6 @@ func (c *CassandraDB) Init() {
 	cluster.Consistency = gocql.Quorum
 	cluster.ProtoVersion = 4
 	cluster.ConnectTimeout = time.Second * 10
-	cluster.Authenticator = gocql.PasswordAuthenticator{Username: DB_CASSANDRA_USERNAME, Password: DB_CASSANDRA_PAWSSWORD, AllowedAuthenticators: []string{"com.instaclustr.cassandra.auth.InstaclustrPasswordAuthenticator"}}
 	session, err := cluster.CreateSession()
 
 	if err != nil {
@@ -51,7 +54,7 @@ func (c *CassandraDB) UpdateDatabase() {
 	// Return average sleep time for James
 	var databaseVersion int = 0
 
-	q := c.Instance.Query("SELECT database_version FROM configurations").Iter()
+	q := c.Instance.Query("SELECT database_version FROM tibia_api.configurations").Iter()
 	q.Scan(&databaseVersion)
 
 	if databaseVersion != 0 && databaseVersion == GetDatabaseVersion() {
@@ -61,9 +64,47 @@ func (c *CassandraDB) UpdateDatabase() {
 
 	log.Println("Database Version: ", strconv.Itoa(databaseVersion), " Updating it...")
 
+	files, _ := os.ReadDir(CASSANDRA_SQL_PATH)
+
+	for i := databaseVersion; i < len(files); i++ {
+		println("Applying update: ", files[i].Name())
+		queries := getFileQueries(files[i].Name())
+		for _, query := range queries {
+			err := c.Instance.Query(query).Exec()
+			if err != nil {
+				log.Fatal("Err while applying update: ", files[i].Name(), err)
+			}
+		}
+	}
+}
+
+func getFileQueries(file string) (queries []string) {
+	f, err := os.Open(CASSANDRA_SQL_PATH + "/" + file)
+
+	// Check for the error that occurred during the opening of the file
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// read the file line by line using a scanner
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		queries = append(queries, scanner.Text())
+	}
+	// check for the error that occurred during the scanning
+
+	if err := scanner.Err(); err != nil {
+		log.Println(err)
+	}
+
+	// Close the file at the end of the program
+	defer f.Close()
+
+	return []string(queries)
 }
 
 func GetDatabaseVersion() int {
-	files, _ := os.ReadDir("./databases/sqls/cassandra")
+	files, _ := os.ReadDir(CASSANDRA_SQL_PATH)
 	return len(files)
 }
