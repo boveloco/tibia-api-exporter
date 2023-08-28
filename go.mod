@@ -1,6 +1,6 @@
 module github.com/boveloco/tibia-api-exporter
 
-go 1.21.0
+go 1.21
 
 require github.com/gocql/gocql v1.5.2
 

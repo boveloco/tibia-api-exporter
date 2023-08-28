@@ -3,5 +3,6 @@ run:
 
 build:
 	export GOOS=linux 
-	export GOARCH=amd64 
-	go build main.go -o bin/exporter
+	export GOARCH=amd64
+	mkdir -p ./bin
+	go build -o ./bin/exporter
