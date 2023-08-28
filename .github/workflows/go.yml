@@ -17,7 +17,6 @@ jobs:
         run: |
           apt update -qq && apt install make
           go get .
-        cache-dependency-path: go.sum
 
       - name: Build
         run: make build
