@@ -2,4 +2,6 @@ run:
 	go run main.go
 
 build:
-	go build main.go -o bin/api
+	export GOOS=linux 
+	export GOARCH=amd64 
+	go build main.go -o bin/exporter

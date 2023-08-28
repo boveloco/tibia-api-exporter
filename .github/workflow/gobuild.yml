@@ -1,0 +1,23 @@
+name: Go package
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Install dependencies
+        run: |
+          apt update -qq && apt install make
+          go get .
+        cache-dependency-path: go.sum
+
+      - name: Build
+        run: make build
