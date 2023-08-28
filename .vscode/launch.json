@@ -12,7 +12,7 @@
             "program": "${fileDirname}",
             "env": {
                 "DB_CASSANDRA_CLUSTERIP": "nuc.nullservers.com",
-                "DB_CASSANDRA_KEYSTORE": "teste"
+                "DB_CASSANDRA_KEYSTORE": "teste4"
             }
         }
     ]

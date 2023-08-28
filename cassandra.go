@@ -40,13 +40,21 @@ func (c *CassandraDB) Init() {
 	log.Println("Database Connected..")
 }
 
-func (c *CassandraDB) Write(data *interface{}) bool {
-	err := c.Instance.Query("INSERT INTO sleep_centre.sleep_study (name, study_date, sleep_time_hours) VALUES ('James', '2018-01-07', 8.2);").Exec()
-	if err != nil {
-		log.Println(err)
-		return false
+func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string) bool {
+	var errRet bool = false
+	log.Printf("Writing statistics for world: %s", world)
+	for _, statistic := range data {
+		name := strings.Replace(statistic.Name, "'", "-", -1)
+		query := fmt.Sprintf("INSERT INTO %s.creature_statistics (name, count, day, world) VALUES ('%s', %d, %d, '%s');", CASSANDRA_KEYSPACE, name, statistic.Count, time.Now().Unix(), world)
+		err := c.Instance.Query(query).Exec()
+
+		if err != nil {
+			log.Println(err)
+			errRet = true
+		}
 	}
-	return true
+
+	return errRet
 }
 
 func (c *CassandraDB) Close() {
