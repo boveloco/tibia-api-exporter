@@ -42,5 +42,5 @@ jobs:
           context: .
           file: ./dockerfile
           push: true
-          tags: boveloco/tibia-api-exporter:${{ steps.extract_branch.outputs.branch }}
-          labels: ${{ steps.extract_branch.outputs.branch }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels:  ${{ steps.meta.outputs.labels }}
