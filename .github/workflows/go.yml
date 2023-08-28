@@ -20,3 +20,10 @@ jobs:
 
       - name: Build
         run: make build
+      
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: tibia-api-exporter-main
+          path: bin/exporter
+          retention-days: 5
