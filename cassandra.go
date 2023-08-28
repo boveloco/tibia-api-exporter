@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gocql/gocql"
@@ -40,7 +41,7 @@ func (c *CassandraDB) Init() {
 	log.Println("Database Connected..")
 }
 
-func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string) bool {
+func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string, res chan bool, wg *sync.WaitGroup) {
 	var errRet bool = false
 	log.Printf("Writing statistics for world: %s", world)
 	for _, statistic := range data {
@@ -53,8 +54,10 @@ func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string) bo
 			errRet = true
 		}
 	}
+	log.Printf("Statistics Written for world: %s", world)
 
-	return errRet
+	res <- errRet
+	wg.Done()
 }
 
 func (c *CassandraDB) Close() {
