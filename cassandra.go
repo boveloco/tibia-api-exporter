@@ -89,6 +89,7 @@ func (c *CassandraDB) UpdateDatabase() {
 			err := c.Instance.Query(query).Exec()
 			if err != nil {
 				log.Fatal("Err while applying update: ", files[i].Name(), err)
+				panic(err)
 			}
 		}
 	}
