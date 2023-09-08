@@ -13,7 +13,11 @@ func main() {
 	db = tmp
 
 	db.Init()
-	db.UpdateDatabase()
+	err := db.UpdateDatabase()
+
+	if err != nil {
+		panic("Error updating database")
+	}
 	worlds := getWorlds()
 
 	// channel responses

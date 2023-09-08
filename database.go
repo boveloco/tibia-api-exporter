@@ -4,7 +4,7 @@ import "sync"
 
 type Database interface {
 	Init()
-	UpdateDatabase()
+	UpdateDatabase() bool
 	WriteStatistics([]CreatureStatistic, string, chan bool, *sync.WaitGroup)
 	Close()
 }

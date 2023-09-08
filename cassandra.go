@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -65,7 +66,7 @@ func (c *CassandraDB) Close() {
 	c.Instance.Close()
 }
 
-func (c *CassandraDB) UpdateDatabase() {
+func (c *CassandraDB) UpdateDatabase() error {
 
 	// Return average sleep time for James
 	var databaseVersion int = 0
@@ -75,7 +76,7 @@ func (c *CassandraDB) UpdateDatabase() {
 
 	if databaseVersion != 0 && databaseVersion == GetDatabaseVersion() {
 		log.Println("Database Version: ", strconv.Itoa(databaseVersion), " No need to update")
-		return
+		return nil
 	}
 
 	log.Println("Database Version: ", strconv.Itoa(databaseVersion), " Updating it...")
@@ -88,11 +89,11 @@ func (c *CassandraDB) UpdateDatabase() {
 		for _, query := range queries {
 			err := c.Instance.Query(query).Exec()
 			if err != nil {
-				log.Fatal("Err while applying update: ", files[i].Name(), err)
-				panic(err)
+				return errors.New(fmt.Sprintf("Err while applying update: %s. Err: %s", files[i].Name(), err.Error()))
 			}
 		}
 	}
+	return nil
 }
 
 func getFileQueries(file string) (queries []string) {
