@@ -1,7 +1,12 @@
-FROM alpine
+FROM golang:latest as build
 
-COPY ./bin/exporter /app/exporter
+WORKDIR /build
+COPY . . 
+RUN mkdir -p ./bin && go build -o ./bin/tibia-api-exporter && chmod +x ./bin/tibia-api-exporter
 
-ENV DB_CASSANDRA_CLUSTERIP DB_CASSANDRA_PAWSSWORD DB_CASSANDRA_USERNAME
+FROM debian:latest
 
-CMD ["/app/exporter"]
+COPY --from=build /build/bin/tibia-api-exporter /usr/bin/tibia-api-exporter
+WORKDIR /app/
+
+CMD ["tibia-api-exporter"]
