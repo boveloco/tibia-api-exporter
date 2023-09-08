@@ -31,7 +31,7 @@ func (c *CassandraDB) Init() {
 	cluster.Consistency = gocql.Quorum
 	cluster.ProtoVersion = 4
 	cluster.ConnectTimeout = time.Second * 10
-	cluster.Authenticator = gocql.PasswordAuthenticator{Username: DB_CASSANDRA_USERNAME, Password: DB_CASSANDRA_PAWSSWORD, AllowedAuthenticators: []string{"com.instaclustr.cassandra.auth.InstaclustrPasswordAuthenticator"}}
+	cluster.Authenticator = gocql.PasswordAuthenticator{Username: DB_CASSANDRA_USERNAME, Password: DB_CASSANDRA_PAWSSWORD, AllowedAuthenticators: []string{"org.apache.cassandra.auth.PasswordAuthenticator"}}
 	session, err := cluster.CreateSession()
 
 	if err != nil {
