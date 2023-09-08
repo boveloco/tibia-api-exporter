@@ -52,7 +52,7 @@ func getStatistics(world string) []CreatureStatistic {
 	req, err := http.Get(uri)
 	if err != nil {
 		fmt.Printf("error making http request: %s\n", err)
-		return nil
+		panic(err)
 	}
 
 	decoder := json.NewDecoder(req.Body)
@@ -71,7 +71,7 @@ func getWorlds() []World {
 	req, err := http.Get(uri)
 	if err != nil {
 		fmt.Printf("error making http request: %s\n", err)
-		return nil
+		panic(err)
 	}
 
 	decoder := json.NewDecoder(req.Body)
