@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -89,7 +88,7 @@ func (c *CassandraDB) UpdateDatabase() error {
 		for _, query := range queries {
 			err := c.Instance.Query(query).Exec()
 			if err != nil {
-				return errors.New(fmt.Sprintf("Err while applying update: %s. Err: %s", files[i].Name(), err.Error()))
+				return fmt.Errorf("err while applying update: %s. err: %s", files[i].Name(), err.Error())
 			}
 		}
 	}
