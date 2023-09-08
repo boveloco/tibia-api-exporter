@@ -13,7 +13,7 @@ import (
 	"github.com/gocql/gocql"
 )
 
-var CASSANDRA_SQL_PATH = "./sqls/cassandra"
+var CASSANDRA_SQL_PATH = "/opt/sqls/cassandra/"
 var CASSANDRA_KEYSPACE = os.Getenv("DB_CASSANDRA_KEYSTORE")
 
 type CassandraDB struct {
