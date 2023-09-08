@@ -21,8 +21,8 @@ type CassandraDB struct {
 }
 
 func (c *CassandraDB) Init() {
-	// DB_CASSANDRA_USERNAME := os.Getenv("DB_CASSANDRA_USERNAME")
-	// DB_CASSANDRA_PAWSSWORD := os.Getenv("DB_CASSANDRA_PAWSSWORD")
+	DB_CASSANDRA_USERNAME := os.Getenv("DB_CASSANDRA_USERNAME")
+	DB_CASSANDRA_PAWSSWORD := os.Getenv("DB_CASSANDRA_PAWSSWORD")
 	DB_CASSANDRA_CLUSTERIP := os.Getenv("DB_CASSANDRA_CLUSTERIP")
 	log.Println("Connecting Database...")
 
@@ -31,6 +31,7 @@ func (c *CassandraDB) Init() {
 	cluster.Consistency = gocql.Quorum
 	cluster.ProtoVersion = 4
 	cluster.ConnectTimeout = time.Second * 10
+	cluster.Authenticator = gocql.PasswordAuthenticator{Username: DB_CASSANDRA_USERNAME, Password: DB_CASSANDRA_PAWSSWORD, AllowedAuthenticators: []string{"com.instaclustr.cassandra.auth.InstaclustrPasswordAuthenticator"}}
 	session, err := cluster.CreateSession()
 
 	if err != nil {
