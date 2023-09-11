@@ -6,5 +6,7 @@ type Database interface {
 	Init()
 	UpdateDatabase() error
 	WriteStatistics([]CreatureStatistic, string, chan bool, *sync.WaitGroup)
+	ValidateExecution() (bool, error)
+	SetLastExecution()
 	Close()
 }
