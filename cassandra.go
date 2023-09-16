@@ -101,10 +101,6 @@ func (c *CassandraDB) ValidateExecution() (bool, error) {
 	today := time.Now().UTC()
 	hour := time.Now().UTC().Hour()
 
-	if hour < 12 {
-		return false, nil
-	}
-
 	q := c.Instance.Query(fmt.Sprintf("SELECT day FROM %s.executions WHERE day = '%s' ", CASSANDRA_KEYSPACE, today)).Iter()
 	q.Scan(&executions)
 
@@ -113,11 +109,19 @@ func (c *CassandraDB) ValidateExecution() (bool, error) {
 	}
 
 	fromdb, err := time.Parse("2006-01-02 15:04:05", executions)
+	yesterday := time.Now().AddDate(0, 0, -1).Day()
+	if hour < 12 {
+		if fromdb.Day() <= yesterday {
+			return true, nil
+		}
+		return false, nil
+	}
+
 	if err != nil {
 		log.Panicf("Error converting time. %s", err)
 	}
 
-	if fromdb.Day() == today.Day() && fromdb.Hour() < 12 {
+	if fromdb.Day() == today.Day() {
 		return true, nil
 	}
 	return false, nil
