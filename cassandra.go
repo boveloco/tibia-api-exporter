@@ -128,7 +128,7 @@ func (c *CassandraDB) ValidateExecution() (bool, error) {
 }
 
 func (c *CassandraDB) SetLastExecution() {
-	now := time.Now().UTC()
+	now := time.Now().Format("2006-01-02")
 	query := fmt.Sprintf("INSERT INTO %s.executions (day, success) VALUES ('%s', %t);", CASSANDRA_KEYSPACE, now, true)
 	err := c.Instance.Query(query).Exec()
 
