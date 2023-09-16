@@ -10,7 +10,7 @@ import (
 func main() {
 	var db Database
 	var wg sync.WaitGroup
-	currentTime := time.Now()
+	currentTime := time.Now().UTC()
 
 	tmp := new(CassandraDB)
 	db = tmp

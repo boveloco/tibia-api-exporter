@@ -45,7 +45,7 @@ func (c *CassandraDB) Init() {
 func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string, res chan bool, wg *sync.WaitGroup) {
 	var errRet bool = false
 	log.Printf("Writing statistics for world: %s", world)
-	now := time.Now().Format("2006-01-02")
+	now := time.Now().UTC().Format("2006-01-02T15:04:05")
 	for _, statistic := range data {
 		name := strings.Replace(statistic.Name, "'", "-", -1)
 		query := fmt.Sprintf("INSERT INTO %s.creature_statistics (name, count, day, world) VALUES ('%s', %d,'%s', '%s');", CASSANDRA_KEYSPACE, name, statistic.Count, now, world)
@@ -98,18 +98,33 @@ func (c *CassandraDB) UpdateDatabase() error {
 
 func (c *CassandraDB) ValidateExecution() (bool, error) {
 	var executions string
-	today := time.Now().Format("2006-01-02")
+	today := time.Now().UTC()
+	hour := time.Now().UTC().Hour()
+
+	if hour < 12 {
+		return false, nil
+	}
+
 	q := c.Instance.Query(fmt.Sprintf("SELECT day FROM %s.executions WHERE day = '%s' ", CASSANDRA_KEYSPACE, today)).Iter()
 	q.Scan(&executions)
 
-	if executions != today {
+	if executions == "" {
+		return true, nil
+	}
+
+	fromdb, err := time.Parse("2006-01-02 15:04:05", executions)
+	if err != nil {
+		log.Panicf("Error converting time. %s", err)
+	}
+
+	if fromdb.Day() == today.Day() && fromdb.Hour() < 12 {
 		return true, nil
 	}
 	return false, nil
 }
 
 func (c *CassandraDB) SetLastExecution() {
-	now := time.Now().Format("2006-01-02")
+	now := time.Now().UTC()
 	query := fmt.Sprintf("INSERT INTO %s.executions (day, success) VALUES ('%s', %t);", CASSANDRA_KEYSPACE, now, true)
 	err := c.Instance.Query(query).Exec()
 
