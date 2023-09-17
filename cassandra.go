@@ -42,8 +42,7 @@ func (c *CassandraDB) Init() {
 	log.Println("Database Connected..")
 }
 
-func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string, res chan bool, wg *sync.WaitGroup) {
-	var errRet bool = false
+func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string, wg *sync.WaitGroup) {
 	log.Printf("Writing statistics for world: %s", world)
 	now := time.Now().UTC().Format("2006-01-02T15:04:05")
 	for _, statistic := range data {
@@ -52,14 +51,11 @@ func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string, re
 		err := c.Instance.Query(query).Exec()
 
 		if err != nil {
-			log.Println(err)
-			errRet = true
+			fmt.Printf("error: %v\n", err)
 		}
 	}
 	log.Printf("Statistics Written for world: %s", world)
-
-	res <- errRet
-	wg.Done()
+	defer wg.Done()
 }
 
 func (c *CassandraDB) Close() {

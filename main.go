@@ -16,6 +16,7 @@ func main() {
 	db = tmp
 
 	db.Init()
+
 	err := db.UpdateDatabase()
 	if err != nil {
 		panic("Error updating database")
@@ -32,13 +33,10 @@ func main() {
 
 	worlds := getWorlds()
 
-	// channel responses
-	resChan := make(chan bool, len(worlds))
-
 	for _, world := range worlds {
 		log.Printf("Processing World: %s", world.Name)
 		s := getStatistics(world.Name)
-		go db.WriteStatistics(s, world.Name, resChan, &wg)
+		go db.WriteStatistics(s, world.Name, &wg)
 		wg.Add(1)
 	}
 	wg.Wait()
@@ -46,5 +44,4 @@ func main() {
 	db.SetLastExecution()
 
 	defer db.Close()
-
 }
