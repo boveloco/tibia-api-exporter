@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-var TIBIA_API_URL = "api.tibiadata.com"
+var TIBIA_API_URL = getEnv("TIBIA_API_URL", "tibia-api-tibiadata-api-go.tibia-api.svc.cluster.local")
 var API_GET_WORLDS = "v3/worlds"
 var API_GET_STATISTICS = "v3/killstatistics"
 
@@ -45,7 +45,7 @@ type CreatureStatisticsRequest struct {
 }
 
 func getStatistics(world string) []CreatureStatistic {
-	var uri = fmt.Sprintf("https://%s/%s/%s", TIBIA_API_URL, API_GET_STATISTICS, world)
+	var uri = fmt.Sprintf("http://%s/%s/%s", TIBIA_API_URL, API_GET_STATISTICS, world)
 	log.Printf("Getting statistics for world: %s", world)
 
 	var s CreatureStatisticsRequest
@@ -65,7 +65,7 @@ func getStatistics(world string) []CreatureStatistic {
 }
 
 func getWorlds() []World {
-	var uri = fmt.Sprintf("https://%s/%s", TIBIA_API_URL, API_GET_WORLDS)
+	var uri = fmt.Sprintf("http://%s/%s", TIBIA_API_URL, API_GET_WORLDS)
 
 	var w WorldRequest
 	req, err := http.Get(uri)

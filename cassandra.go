@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gocql/gocql"
+	"github.com/schollz/progressbar/v3"
 )
 
 var CASSANDRA_SQL_PATH = getEnv("DB_CASSANDRA_SQL_PATH", "/opt/sqls/cassandra/")
@@ -43,7 +44,8 @@ func (c *CassandraDB) Init() {
 }
 
 func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string, wg *sync.WaitGroup) {
-	log.Printf("Writing statistics for world: %s", world)
+
+	bar := progressbar.Default(int64(len(data)), world)
 	now := time.Now().UTC().Format("2006-01-02T15:04:05")
 	for _, statistic := range data {
 		name := strings.Replace(statistic.Name, "'", "-", -1)
@@ -51,10 +53,10 @@ func (c *CassandraDB) WriteStatistics(data []CreatureStatistic, world string, wg
 		err := c.Instance.Query(query).Exec()
 
 		if err != nil {
-			fmt.Printf("error: %v\n", err)
+			log.Panicf("error: %v\n", err)
 		}
+		bar.Add(1)
 	}
-	log.Printf("Statistics Written for world: %s", world)
 	defer wg.Done()
 }
 

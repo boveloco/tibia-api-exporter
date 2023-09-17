@@ -16,6 +16,7 @@ func main() {
 	db = tmp
 
 	db.Init()
+	defer db.Close()
 
 	err := db.UpdateDatabase()
 	if err != nil {
@@ -35,13 +36,12 @@ func main() {
 
 	for _, world := range worlds {
 		log.Printf("Processing World: %s", world.Name)
+		wg.Add(1)
 		s := getStatistics(world.Name)
 		go db.WriteStatistics(s, world.Name, &wg)
-		wg.Add(1)
 	}
 	wg.Wait()
 
 	db.SetLastExecution()
 
-	defer db.Close()
 }
